@@ -1,26 +1,16 @@
 #!/bin/bash
-export PATH="/root/Toolchain/clang-r416183/bin:/root/Toolchain/gcc64/bin:/root/Toolchain/gcc32/bin:$PATH"
-
-rm .version
-
-clear
-cd ~/RM5G/
-#cp Makefile.clang11 Makefile
-
-rm -rf out-clang
-mkdir out-clang
+mkdir out
 
 # Resources
 THREAD="-j8"
 KERNEL="Image"
 DTBIMAGE="dtb"
 
-export CLANG_PATH=/root/Toolchain/clang-r416183/bin/
 export PATH=${CLANG_PATH}:${PATH}
 export CLANG_TRIPLE=aarch64-linux-gnu-
-export CROSS_COMPILE=/root/Toolchain/gcc64/bin/aarch64-linux-android- CC=clang CXX=clang++
-export CROSS_COMPILE_ARM32=/root/Toolchain/gcc32/arm-linux-androideabi-
-export KBUILD_COMPILER_STRING=$(~/toolchains/Clang-11/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+export CROSS_COMPILE=aarch64-linux-gnu- CC=clang CXX=clang++
+export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+export KBUILD_COMPILER_STRING=$(clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 export CXXFLAGS="$CXXFLAGS -fPIC"
 export DTC_EXT=dtc
 
@@ -29,7 +19,7 @@ DEFCONFIG="NX659J_defconfig"
 
 # Paths
 KERNEL_DIR=`pwd`
-ZIMAGE_DIR="~/RM5G/out-clang/arch/arm64/boot/"
+ZIMAGE_DIR="out/arch/arm64/boot/"
 
 # Kernel Details
 VER="-1.4"
@@ -52,8 +42,8 @@ echo "-------------------"
 echo -e "${restore}"
 
 echo
-make CC="ccache clang" CXX="ccache clang++" O=out-clang $DEFCONFIG
-make CC="ccache clang" CXX="ccache clang++" O=out-clang $THREAD 2>&1 | tee kernel.log
+make CC="ccache clang" CXX="ccache clang++" O=out $DEFCONFIG
+make CC="ccache clang" CXX="ccache clang++" O=out $THREAD 2>&1 | tee kernel.log
 
 echo -e "${green}"
 echo "-------------------"
@@ -69,8 +59,8 @@ cd $ZIMAGE_DIR
 ls -a
 
 # Make a dtb file
-#find ~/RM5G/out-clang/arch/arm64/boot/dts/vendor/qcom -name '*.dtb' -exec cat {} + > ~/RM5G/out-clang/arch/arm64/boot/dtb
-cd ~/RM5G/out-clang/arch/arm64/boot/
+#find ~/RM5G/out/arch/arm64/boot/dts/vendor/qcom -name '*.dtb' -exec cat {} + > ~/RM5G/out/arch/arm64/boot/dtb
+cd out/arch/arm64/boot/
 cat dts/vendor/qcom/kona.dtb dts/vendor/qcom/kona-v2.dtb dts/vendor/qcom/kona-v2.1.dtb > dtb
 ls -a
 
